@@ -1,7 +1,7 @@
 #include <sharna.h>
 
-int
-main (int argc, char const *argv[])
+void
+test1 ()
 {
   char text[] = "Hello, World!";
   char code[] = { MOV, R_A, 1, MOV, R_B, 2, HLT };
@@ -36,6 +36,24 @@ main (int argc, char const *argv[])
     }
 
   printf ("PC: %d\n", vm.cpu.reg_16[0]);
+}
 
+void
+test2 ()
+{
+  sh_asm_ctx_t ctx = sh_asm_ctx_new_fromFilename ("tests/test1.sp");
+  sh_asm_tok_parse (&ctx);
+  sh_asm_ast_parse_toks (&ctx);
+
+  for (size_t i = 0; i < ctx.trs; i++)
+    {
+      printf ("%d\n", ctx.tree[i].type);
+    }
+}
+
+int
+main (int argc, char const *argv[])
+{
+  test2 ();
   return 0;
 }

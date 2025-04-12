@@ -1,5 +1,6 @@
 #pragma once
 
+#include "assembler/shasm.h"
 #include "header.h"
 #include "inst/inst.h"
 #include "opcodes.h"

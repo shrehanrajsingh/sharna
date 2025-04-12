@@ -17,5 +17,11 @@ add_library(sharna
     inst/mov.h inst/mov.c
     inst/add.h inst/add.c
     inst/inst.h
+
+    assembler/shasm.h assembler/shasm.c
+    assembler/ctx.h assembler/ctx.c
+    assembler/tok.h assembler/tok.c
+    assembler/ast.h assembler/ast.c
+
     sharna.h sharna.c)
 
