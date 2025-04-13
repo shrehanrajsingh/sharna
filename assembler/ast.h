@@ -22,9 +22,36 @@ enum
   SECTION_DATA,
 };
 
+enum
+{
+  ARG_TYPE_NUM = 0,
+  ARG_TYPE_VAR = 1,
+};
+
 typedef struct
 {
   int type;
+
+  union
+  {
+    struct
+    {
+      uint8_t v;
+    } num;
+
+    struct
+    {
+      char *v;
+    } var;
+
+  } v;
+
+} sh_inst_arg_t;
+
+typedef struct
+{
+  int type;
+  int curr_section;
 
   union
   {
@@ -34,6 +61,7 @@ typedef struct
       char f; /* fill `v` bytes with `f` */
     } db;
 
+    /* byte 1 is always opcode */
     struct
     {
       uint8_t v;
@@ -41,12 +69,14 @@ typedef struct
 
     struct
     {
-      uint8_t v1, v2;
+      uint8_t v1;
+      sh_inst_arg_t v2;
     } i2b;
 
     struct
     {
-      uint8_t v1, v2, v3;
+      uint8_t v1;
+      sh_inst_arg_t v2, v3;
     } i3b;
 
     struct

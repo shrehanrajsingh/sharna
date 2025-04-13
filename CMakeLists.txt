@@ -22,6 +22,7 @@ add_library(sharna
     assembler/ctx.h assembler/ctx.c
     assembler/tok.h assembler/tok.c
     assembler/ast.h assembler/ast.c
+    assembler/codegen.h assembler/codegen.c
 
     sharna.h sharna.c)
 

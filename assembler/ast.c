@@ -13,11 +13,16 @@ _tree_push (sh_asm_ctx_t *c, sh_asm_ast_t v)
   c->tree[c->trs++] = v;
 }
 
+static sh_inst_arg_t parse (sh_tok_t *_Toks, int _Len);
+sh_asm_ast_t fetch_inst_3b (sh_tok_t *_Toks, int _Start, int *_Jmp);
+sh_asm_ast_t fetch_inst_2b (sh_tok_t *_Toks, int _Start, int *_Jmp);
+
 SH_API void
 sh_asm_ast_parse_toks (sh_asm_ctx_t *c)
 {
   int i = 0;
   sh_asm_ast_t cv;
+  int curr_sec = SECTION_TEXT;
 
   while (i < c->ts)
     {
@@ -39,60 +44,16 @@ sh_asm_ast_parse_toks (sh_asm_ctx_t *c)
               {
               case INST_MOV:
                 {
-                  cv.type = AST_INST_3BYTE;
-
-                  /* for now */
-                  cv.v.i3b.v1 = MOV;
-                  assert (c->toks[i + 1].type == TOK_IDENTIFIER);
-
-                  char *id = c->toks[i + 1].v.ident.v;
-
-                  if (id[1] == '\0' && (id[0] >= 'A' && id[0] <= 'F'))
-                    {
-                      cv.v.i3b.v2 = id[0] - 'A';
-                    }
-                  else
-                    {
-                      eprintf (
-                          "sh_asm_ast_parse_toks: feature in development");
-                      exit (EXIT_FAILURE);
-                    }
-
-                  if (c->toks[i + 2].type == TOK_NUMBER)
-                    {
-                      cv.v.i3b.v3 = c->toks[i + 2].v.num.v;
-                    }
-
+                  cv = fetch_inst_3b (c->toks, i, &i);
+                  cv.curr_section = curr_sec;
                   _tree_push (c, cv);
                 }
                 break;
 
               case INST_ADD:
                 {
-                  cv.type = AST_INST_3BYTE;
-
-                  /* for now */
-                  cv.v.i3b.v1 = ADD;
-                  assert (c->toks[i + 1].type == TOK_IDENTIFIER);
-
-                  char *id = c->toks[i + 1].v.ident.v;
-
-                  if (id[1] == '\0' && (id[0] >= 'A' && id[0] <= 'F'))
-                    {
-                      cv.v.i3b.v2 = id[0] - 'A';
-                    }
-                  else
-                    {
-                      eprintf (
-                          "sh_asm_ast_parse_toks: feature in development");
-                      exit (EXIT_FAILURE);
-                    }
-
-                  if (c->toks[i + 2].type == TOK_NUMBER)
-                    {
-                      cv.v.i3b.v3 = c->toks[i + 2].v.num.v;
-                    }
-
+                  cv = fetch_inst_3b (c->toks, i, &i);
+                  cv.curr_section = curr_sec;
                   _tree_push (c, cv);
                 }
                 break;
@@ -101,6 +62,7 @@ sh_asm_ast_parse_toks (sh_asm_ctx_t *c)
                 {
                   cv.type = AST_INST_1BYTE;
                   cv.v.i1b.v = HLT;
+                  cv.curr_section = curr_sec;
 
                   _tree_push (c, cv);
                 }
@@ -127,4 +89,99 @@ sh_asm_ast_parse_toks (sh_asm_ctx_t *c)
     le:
       i++;
     }
+}
+
+sh_inst_arg_t
+parse (sh_tok_t *toks, int len)
+{
+  sh_inst_arg_t r;
+
+  for (int i = 0; i < len; i++)
+    {
+      sh_tok_t *c = &toks[i];
+
+      switch (c->type)
+        {
+        case TOK_NUMBER:
+          {
+            // printf ("[%d]\n", c->v.num.v);
+            r.type = ARG_TYPE_NUM;
+            r.v.num.v = c->v.num.v;
+          }
+          break;
+
+        case TOK_IDENTIFIER:
+          {
+            r.type = ARG_TYPE_VAR;
+            r.v.var.v = shstrdup (c->v.ident.v);
+          }
+          break;
+
+        default:
+          break;
+        }
+    }
+
+  return r;
+}
+
+sh_asm_ast_t
+fetch_inst_3b (sh_tok_t *toks, int st, int *jmp)
+{
+  sh_asm_ast_t cv;
+  cv.type = AST_INST_3BYTE;
+  cv.v.i3b.v1 = toks[st].v.inst.type;
+
+  int ci = st + 1; /* comma idx */
+  int gb = 0;
+
+  for (;; ci++)
+    {
+      sh_tok_t *d = &toks[ci];
+
+      if (d->type == TOK_OPERATOR)
+        {
+          if (*d->v.opt.v == ',' && !gb)
+            break;
+
+          if (*d->v.opt.v == '(' || *d->v.opt.v == '[')
+            gb++;
+          else if (*d->v.opt.v == ')' || *d->v.opt.v == ']')
+            gb--;
+        }
+    }
+
+  cv.v.i3b.v2 = parse (toks + st + 1, ci - st - 1);
+  ci++;
+
+  int cip = ci;
+  gb = 0;
+
+  for (;; ci++)
+    {
+      sh_tok_t *d = &toks[ci];
+
+      if (d->type == TOK_NL && !gb)
+        break;
+
+      if (d->type == TOK_OPERATOR)
+        {
+          if (*d->v.opt.v == ';' && !gb)
+            break;
+
+          if (*d->v.opt.v == '(' || *d->v.opt.v == '[')
+            gb++;
+          else if (*d->v.opt.v == ')' || *d->v.opt.v == ']')
+            gb--;
+        }
+    }
+
+  cv.v.i3b.v3 = parse (toks + cip, ci - cip);
+
+  if (jmp)
+    {
+      (*jmp) = ci;
+    }
+
+  return cv;
 }

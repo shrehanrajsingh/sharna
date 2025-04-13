@@ -82,36 +82,43 @@ sh_asm_tok_parse (sh_asm_ctx_t *s)
 
           if (ct.type == TOK_IDENTIFIER)
             {
-              ct.v.ident.v = strdup (var);
+              ct.v.ident.v = shstrdup (var);
             }
 
           sh_asm_ctx_push_tok (s, ct);
           c = d;
           continue;
         }
-      else if (c == ',' || c == '+' || c == '-' || c == ':' || c == '.')
+      else if (c == ',' || c == '+' || c == '-' || c == ':' || c == '.'
+               || c == '[' || c == ']' || c == '(' || c == ')' || c == ';')
         {
           ct.type = TOK_OPERATOR;
-          ct.v.opt.v = strdup (" ");
+          ct.v.opt.v = shstrdup (" ");
           *ct.v.opt.v = c;
+
+          sh_asm_ctx_push_tok (s, ct);
+        }
+      else if (c == '\n')
+        {
+          ct.type = TOK_NL;
 
           sh_asm_ctx_push_tok (s, ct);
         }
       else if (c >= '0' && c <= '9')
         {
           uint8_t num; /* 8 bit numbers cannot be > 255 */
-          num = 100 * c;
+          num = 100 * (c - '0');
 
           char d = fetch (s);
           if (d >= '0' && d <= '9')
             {
-              num += 10 * d;
+              num += 10 * (d - '0');
 
               d = fetch (s);
 
               if (d >= '0' && d <= '9')
                 {
-                  num += d;
+                  num += (d - '0');
                   ct.type = TOK_NUMBER;
                   ct.v.num.v = num;
 

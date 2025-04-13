@@ -21,4 +21,4 @@ enum
   REG_TYPE_16
 };
 
-static const char *REGNAMES[] = { "A", "B", "C", "D", "E", "F" };
+static const char *REGNAMES[] = { "A", "B", "C", "D", "E", "F", NULL };

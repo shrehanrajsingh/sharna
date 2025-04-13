@@ -11,3 +11,11 @@
 #endif
 
 #define eprintf(...) fprintf (stderr, __VA_ARGS__)
+#define wprintf(...)                                                          \
+  fprintf (stderr, "[warn] ");                                                \
+  fprintf (stdout, __VA_ARGS__);
+
+#define __development__                                                       \
+  fprintf (stderr, "%s(%d): requested feature is under development",          \
+           __FUNCTION__, __LINE__);                                           \
+  exit (EXIT_FAILURE);

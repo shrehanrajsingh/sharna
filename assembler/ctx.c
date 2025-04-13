@@ -12,6 +12,8 @@ sh_asm_ctx_new (void)
   ctx.trs = 0;
   ctx.trc = ASM_CTX_TREE_CAP;
   ctx.tree = shmalloc (ctx.trc * sizeof (sh_asm_ast_t));
+  ctx.text = shmalloc (ASM_CTX_SECTION_TEXT_SIZE);
+  ctx.data = shmalloc (ASM_CTX_SECTION_DATA_SIZE);
 
   return ctx;
 }

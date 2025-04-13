@@ -42,12 +42,27 @@ void
 test2 ()
 {
   sh_asm_ctx_t ctx = sh_asm_ctx_new_fromFilename ("tests/test1.sp");
+
+  for (size_t i = 0; i < ASM_CTX_SECTION_TEXT_SIZE; i++)
+    {
+      ctx.text[i] = 0;
+      ctx.data[i] = 0;
+    }
+
   sh_asm_tok_parse (&ctx);
   sh_asm_ast_parse_toks (&ctx);
 
   for (size_t i = 0; i < ctx.trs; i++)
     {
       printf ("%d\n", ctx.tree[i].type);
+    }
+
+  sh_asm_codegen (&ctx);
+
+  printf ("----\n");
+  for (size_t i = 0; ctx.text[i] != HLT; i++)
+    {
+      printf ("%d\n", ctx.text[i]);
     }
 }
 

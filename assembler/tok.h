@@ -14,6 +14,7 @@ enum
   TOK_OPERATOR = 4,
   TOK_COMMENT = 5,
   TOK_NUMBER = 6,
+  TOK_NL = 7,
   TOK_COUNT /* number of tokens */
 };
 

@@ -8,21 +8,24 @@
 #define ASM_CTX_TOK_CAP 32
 #define ASM_CTX_TREE_CAP 32
 
+#define ASM_CTX_SECTION_TEXT_SIZE (32 * 1024 * sizeof (uint8_t)) /* 32KB */
+#define ASM_CTX_SECTION_DATA_SIZE (32 * 1024 * sizeof (uint8_t)) /* 32KB */
+
 typedef struct _sh_asm_ctx_s
 {
   FILE *src;
   int fc;
 
   sh_tok_t *toks;
-  size_t ts; /* size */
-  size_t tc; /* capacity */
+  size_t ts; /* size of toks */
+  size_t tc; /* capacity of toks */
 
   sh_asm_ast_t *tree;
-  size_t trs; /* size */
-  size_t trc; /* capacity */
+  size_t trs; /* size of tree */
+  size_t trc; /* capacity of tree */
 
-  char *text; /* text section */
-  char *data; /* data section */
+  uint8_t *text; /* text section */
+  uint8_t *data; /* data section */
 
 } sh_asm_ctx_t;
 
