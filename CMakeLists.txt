@@ -23,6 +23,7 @@ add_library(sharna
     assembler/tok.h assembler/tok.c
     assembler/ast.h assembler/ast.c
     assembler/codegen.h assembler/codegen.c
+    assembler/quickparser.h assembler/quickparser.c
 
     sharna.h sharna.c)
 

@@ -66,9 +66,23 @@ test2 ()
     }
 }
 
+void
+test3 ()
+{
+  sh_qp_t qp = sh_qp_new_fromFile ("tests/test.sp");
+
+  //   printf ("%s\n", qp.fcont);
+  for (size_t i = 0; i < qp.fls; i++)
+    {
+      printf ("(%d) %s\n", i, qp.flines[i]);
+    }
+
+  sh_qp_close (&qp);
+}
+
 int
 main (int argc, char const *argv[])
 {
-  test2 ();
+  test3 ();
   return 0;
 }
