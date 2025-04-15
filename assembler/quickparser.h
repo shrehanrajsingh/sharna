@@ -20,13 +20,17 @@
  */
 
 #include "../header.h"
+#include "../opcodes.h"
+#include "../registers.h"
 #include "../shmalloc.h"
+#include "strutils.h"
 
 #define QP_VTABLE_SIZE 5000
+#define QP_CODEGEN_SIZE (32 * 1024 + 32 * 1024) /* 32KB text, 32KB data */
 
 typedef struct
 {
-  int val[QP_VTABLE_SIZE];
+  size_t val[QP_VTABLE_SIZE];
 
 } sh_qp_vtable_t;
 
@@ -41,6 +45,21 @@ typedef struct
 
   sh_qp_vtable_t vt; /* to store labels */
 
+  /**
+   * one section is reserved for end of program (.name = NULL, .bc = bytes used
+   * by program)
+   */
+  struct
+  {
+    char *name; /* section name, containing '.' */
+    size_t bc;  /* byte count */
+
+  } prog_sections[64]; /* 64 unique sections per program */
+  size_t ps_c;
+
+  char cg[QP_CODEGEN_SIZE]; /* codegen */
+  size_t cgc;
+
 } sh_qp_t;
 
 #if defined(__cplusplus)
@@ -50,7 +69,12 @@ extern "C"
 
   SH_API sh_qp_t sh_qp_new (void);
   SH_API sh_qp_t sh_qp_new_fromFile (char *_fname);
-  SH_API void sh_qp_close (sh_qp_t *);
+  SH_API void sh_qp_close (sh_qp_t *_QP);
+
+  SH_API void sh_qp_addtovtable (sh_qp_vtable_t *, char *, size_t);
+  SH_API int sh_qp_getfromvtable (sh_qp_vtable_t *_VT, char *_Key);
+
+  SH_API void sh_qp_parse (sh_qp_t *_QP);
 
 #if defined(__cplusplus)
 }

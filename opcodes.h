@@ -19,3 +19,7 @@ enum
 #define ADD (ADD_rv)
 #define PUSH (PUSH_r)
 #define POP (POP_r)
+
+static const char *INST_3B[] = { "mov", "add", "cmp", NULL };
+static const char *INST_2B[] = { "push", "pop", "je", "jc", "sje", NULL };
+static const char *INST_1B[] = { "hlt", NULL };

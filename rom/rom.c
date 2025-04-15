@@ -10,7 +10,7 @@ sh_rom_new (void)
 }
 
 SH_API void
-sh_rom_push (rom_t *r, char v)
+sh_rom_push (rom_t *r, uint8_t v)
 {
   if (r->l == ROM_SIZE - 1)
     {

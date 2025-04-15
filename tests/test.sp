@@ -1,5 +1,6 @@
 section .data
-msg: db "Hello, World!", 0
+msg:
+db "Hello, World!", 0
 
 section .text
 mov A, 10

@@ -18,6 +18,7 @@ add_library(sharna
     inst/add.h inst/add.c
     inst/inst.h
 
+    assembler/strutils.h assembler/strutils.c
     assembler/shasm.h assembler/shasm.c
     assembler/ctx.h assembler/ctx.c
     assembler/tok.h assembler/tok.c

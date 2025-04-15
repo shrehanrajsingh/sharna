@@ -26,7 +26,7 @@ sh_vm_run (vm_t *v)
     {
       switch (c)
         {
-        case MOV:
+        case MOV_rv:
           {
             char r = v->ram.v[++(*pc)];
             char vl = v->ram.v[++(*pc)];
@@ -35,12 +35,20 @@ sh_vm_run (vm_t *v)
           }
           break;
 
-        case ADD:
+        case ADD_rv:
           {
             char r = v->ram.v[++(*pc)];
             char vl = v->ram.v[++(*pc)];
 
             sh_add_rv (v, r, vl);
+          }
+          break;
+        case ADD_rr:
+          {
+            char r1 = v->ram.v[++(*pc)];
+            char r2 = v->ram.v[++(*pc)];
+
+            sh_add_rr (v, r1, r2);
           }
           break;
 

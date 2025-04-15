@@ -7,7 +7,7 @@
 
 typedef struct
 {
-  char v[RAM_SIZE];
+  uint8_t v[RAM_SIZE];
   uint16_t l;
 
   struct
@@ -28,7 +28,8 @@ extern "C"
   SH_API void sh_ram_reset_offsets_m (ram_t *_Ram, uint16_t _pt, uint16_t _pd,
                                       uint16_t _heap, uint16_t _st);
   SH_API void sh_ram_load (ram_t *_Ram, char *_Data, int _From, int _To);
-  SH_API void sh_ram_push (ram_t *_Ram, char _Val);
+  SH_API void sh_ram_load_u (ram_t *_Ram, uint8_t *_Data, int _From, int _To);
+  SH_API void sh_ram_push (ram_t *_Ram, uint8_t _Val);
 
 #if defined(__cplusplus)
 }
