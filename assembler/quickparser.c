@@ -36,7 +36,12 @@ sh_qp_new_fromFile (char *f)
   size_t fc_cap = 64;
   r.fcont = shmalloc (fc_cap * sizeof (char));
 
-  char c;
+  /**
+   * fgetc is designed to return an int
+   * if we use char for `c` then there stems
+   * an ambiguity between -1 and 255
+   */
+  int c;
 
   while ((c = fgetc (r.fptr)) != EOF)
     {

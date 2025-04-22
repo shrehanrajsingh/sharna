@@ -1,7 +1,7 @@
 #include "tok.h"
 #include "ctx.h"
 
-char
+int
 fetch (sh_asm_ctx_t *s)
 {
   return fgetc (s->src);
@@ -41,7 +41,7 @@ is_number (char *s)
 SH_API void
 sh_asm_tok_parse (sh_asm_ctx_t *s)
 {
-  char c = fetch (s);
+  int c = fetch (s);
   sh_tok_t ct;
 
   while (c != EOF)
@@ -51,7 +51,7 @@ sh_asm_tok_parse (sh_asm_ctx_t *s)
           char var[ASM_IDENT_SIZE_LIMIT];
           var[0] = c;
 
-          char d = fetch (s);
+          int d = fetch (s);
           int j = 1;
 
           while ((d >= 'A' && d <= 'Z') || (d >= 'a' && d <= 'z')
