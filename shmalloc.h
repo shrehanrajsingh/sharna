@@ -5,6 +5,7 @@
 #define shmalloc(X) _SH_Malloc (X)
 #define shrealloc(X, Y) _SH_Realloc (X, Y)
 #define shfree(X) _SH_Free (X)
+#define shstrdup(X) strdup (X)
 
 #if defined(__cplusplus)
 extern "C"

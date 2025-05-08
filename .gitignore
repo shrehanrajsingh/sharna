@@ -1,3 +1,5 @@
 .vscode/
 .DS_Store
 build/*
+assembler/build/*
+assembler/.vscode/

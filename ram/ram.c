@@ -36,11 +36,18 @@ SH_API void
 sh_ram_load (ram_t *r, char *d, int f, int t)
 {
   for (int i = f; i < t; i++)
+    r->v[r->l++] = (uint8_t)d[i];
+}
+
+SH_API void
+sh_ram_load_u (ram_t *r, uint8_t *d, int f, int t)
+{
+  for (int i = f; i < t; i++)
     r->v[r->l++] = d[i];
 }
 
 SH_API void
-sh_ram_push (ram_t *r, char v)
+sh_ram_push (ram_t *r, uint8_t v)
 {
   if (r->l == RAM_SIZE - 1)
     {
