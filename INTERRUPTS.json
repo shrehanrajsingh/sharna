@@ -1,0 +1,56 @@
+{
+  "syscall": [
+    {
+        "type": "IO",
+        "description": "Input/Output for filestreams",
+        "id": 1,
+        "dest": "int",
+        "routines": [
+            {
+                "name": "write",
+                "dest": "reg::A",
+                "id": 1,
+                "args": [
+                    {
+                        "name": "fstream",
+                        "description": "File stream",
+                        "dest": "reg::B"
+                    },
+                    {
+                        "name": "message",
+                        "description": "Message to write to fstream",
+                        "dest": "reg::C"
+                    },
+                    {
+                        "name": "msglen",
+                        "description": "Length of message",
+                        "dest": "reg::D"
+                    }
+                ]
+            },
+            {
+                "name": "read",
+                "dest": "reg::A",
+                "id": 2,
+                "args": [
+                    {
+                        "name": "fstream",
+                        "description": "File stream",
+                        "dest": "reg::B"
+                    },
+                    {
+                        "name": "message",
+                        "description": "Destination to store data",
+                        "dest": "reg::C"
+                    },
+                    {
+                        "name": "buflen",
+                        "description": "Number of bytes to read",
+                        "dest": "reg::D"
+                    }
+                ]
+            }
+        ]
+    }
+  ]
+}

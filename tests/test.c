@@ -69,29 +69,29 @@ test2 ()
 void
 test3 ()
 {
-  sh_qp_t qp = sh_qp_new_fromFile ("tests/test1.sp");
+  sh_qp_t qp = sh_qp_new_fromFile ("tests/test.sp");
 
-  printf ("%s\n", qp.fcont);
-  for (size_t i = 0; i < qp.fls; i++)
-    {
-      printf ("(%d) %s\n", i, qp.flines[i]);
-    }
+  // printf ("%s\n", qp.fcont);
+  // for (size_t i = 0; i < qp.fls; i++)
+  //   {
+  //     printf ("(%d) %s\n", i, qp.flines[i]);
+  //   }
 
   sh_qp_parse (&qp);
 
-  printf ("codegen size: %d\n", qp.cgc);
-  for (size_t i = 0; i < qp.cgc; i++)
-    {
-      printf ("%d  ", qp.cg[i]);
-    }
+  // printf ("codegen size: %d\n", qp.cgc);
+  // for (size_t i = 0; i < qp.cgc; i++)
+  //   {
+  //     printf ("%d  ", qp.cg[i]);
+  //   }
 
-  printf ("\nSections:\n");
-  for (size_t i = 0; i < qp.ps_c; i++)
-    {
-      printf ("%s: %d\n",
-              qp.prog_sections[i].name ? qp.prog_sections[i].name : "EOP",
-              (int)qp.prog_sections[i].bc);
-    }
+  // printf ("\nSections:\n");
+  // for (size_t i = 0; i < qp.ps_c; i++)
+  //   {
+  //     printf ("%s: %d\n",
+  //             qp.prog_sections[i].name ? qp.prog_sections[i].name : "EOP",
+  //             (int)qp.prog_sections[i].bc);
+  //   }
 
   vm_t vm = sh_vm_new ();
 
@@ -103,6 +103,12 @@ test3 ()
 
   sh_ram_reset_offsets_m (&vm.ram, sec_text_bc, sec_data_bc, sec_eop_bc,
                           RAM_SIZE - 1);
+
+  // for (size_t i = 0; i < vm.ram.l; i++)
+  //   {
+  //     printf ("%d\n", vm.ram.v[i]);
+  //   }
+  // printf ("-----\n");
 
   sh_vm_run (&vm);
   printf ("\nRegisters:\n");
@@ -130,6 +136,31 @@ test4 ()
   printf ("%d\n", sh_qp_getfromvtable (&vt, "Hello"));
   printf ("%d\n", sh_qp_getfromvtable (&vt, "hey"));
   printf ("%d\n", sh_qp_getfromvtable (&vt, "heY"));
+}
+
+void
+test5 ()
+{
+  uint8_t data[] = "Hello, World!\n";
+  uint8_t text[] = { MOV, R_A, 1,   MOV, R_B,       1, MOV, R_C,
+                     15,  MOV, R_D, 14,  INTERRUPT, 1, HLT };
+  vm_t vm = sh_vm_new ();
+
+  for (size_t i = 0; text[i] != HLT; i++)
+    sh_rom_push (&vm.rom, text[i]);
+  sh_rom_push (&vm.rom, HLT);
+
+  /* load text section */
+  sh_ram_load (&vm.ram, vm.rom.v, 0, vm.rom.l);
+
+  /* load data section */
+  sh_ram_load (&vm.ram, data, 0, strlen (data));
+
+  /* set offsets */
+  sh_ram_reset_offsets_m (&vm.ram, 0, vm.rom.l, vm.ram.l, RAM_SIZE - 1);
+
+  /* run the vm */
+  sh_vm_run (&vm);
 }
 
 int

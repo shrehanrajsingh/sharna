@@ -27,10 +27,15 @@
 
 #define QP_VTABLE_SIZE 5000
 #define QP_CODEGEN_SIZE (32 * 1024 + 32 * 1024) /* 32KB text, 32KB data */
+#define QP_VTABLE_KEYS_CAPACITY 128
 
 typedef struct
 {
   size_t val[QP_VTABLE_SIZE];
+
+  char **keys;
+  size_t kc;
+  size_t kl;
 
 } sh_qp_vtable_t;
 
@@ -53,9 +58,10 @@ typedef struct
   {
     char *name; /* section name, containing '.' */
     size_t bc;  /* byte count */
+    size_t lc;  /* line count */
 
   } prog_sections[64]; /* 64 unique sections per program */
-  size_t ps_c;
+  size_t ps_c;         /* program section count */
 
   char cg[QP_CODEGEN_SIZE]; /* codegen */
   size_t cgc;
@@ -73,6 +79,8 @@ extern "C"
 
   SH_API void sh_qp_addtovtable (sh_qp_vtable_t *, char *, size_t);
   SH_API int sh_qp_getfromvtable (sh_qp_vtable_t *_VT, char *_Key);
+  SH_API int sh_qp_vt_keyexists (sh_qp_vtable_t *_VT, char *_Key);
+  SH_API sh_qp_vtable_t sh_qp_vt_new (void);
 
   SH_API void sh_qp_parse (sh_qp_t *_QP);
 

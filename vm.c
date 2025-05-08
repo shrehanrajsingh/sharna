@@ -14,6 +14,7 @@ sh_vm_new (void)
 SH_API void
 sh_vm_run (vm_t *v)
 {
+  v->cpu.reg_16[R_PC] = v->ram.offsets.p_text;
   uint16_t *pc = &v->cpu.reg_16[R_PC];
 
   uint8_t *ra = &v->cpu.reg_8[R_A], *rb = &v->cpu.reg_8[R_B],
@@ -52,9 +53,94 @@ sh_vm_run (vm_t *v)
           }
           break;
 
+        case INTERRUPT:
+          {
+            uint8_t r1 = v->ram.v[++(*pc)];
+            // printf ("found interrupt: [A = %d] [B = %d] [C = %d] [D =
+            // %d]\n",
+            //         *ra, *rb, *rc, *rd);
+
+            switch (r1)
+              {
+              case SC_IO:
+                {
+                  /* all IO routines use a filestream */
+                  FILE *fptr = NULL;
+
+                  switch (*rb)
+                    {
+                    case IOFS_STDOUT:
+                      fptr = (FILE *)stdout;
+                      break;
+
+                    case IOFS_STDIN:
+                      fptr = (FILE *)stdin;
+                      break;
+
+                    case IOFS_CUST:
+                      {
+                        __development__
+                      }
+                      break;
+
+                    default:
+                      break;
+                    }
+
+                  assert (fptr != NULL);
+
+                  uint8_t *msgbuf = &v->ram.v[*rc];
+
+                  switch (*ra)
+                    {
+                    case SC_IO_WRITE:
+                      {
+                        sh_int_sys_io_write (fptr, msgbuf, *rd);
+                      }
+                      break;
+
+                    case SC_IO_READ:
+                      {
+                        sh_int_sys_io_read (fptr, msgbuf, *rd);
+                      }
+                      break;
+
+                    default:
+                      break;
+                    }
+                }
+                break;
+
+              default:
+                break;
+              }
+          }
+          break;
+
+        case JE_v:
+          {
+            char b1 = v->ram.v[++(*pc)];
+            char b2 = v->ram.v[++(*pc)];
+
+            sh_je_v (v, b1, b2);
+            continue;
+          }
+          break;
+
+        case JNE_v:
+          {
+            char b1 = v->ram.v[++(*pc)];
+            char b2 = v->ram.v[++(*pc)];
+
+            sh_jne_v (v, b1, b2);
+            // printf ("%d\n", *pc);
+            continue;
+          }
+          break;
+
         default:
           {
-            eprintf ("sh_vm_run: invalid instruction %d", c);
+            eprintf ("sh_vm_run: invalid instruction %d\n", c);
           }
           break;
         }
