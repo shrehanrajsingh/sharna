@@ -12,6 +12,6 @@ sh_jne_v (struct _sharna_vm_s *vm, char b1, char b2)
       else
         addr = (((uint8_t)b2) << 8) | ((uint8_t)b1);
 
-      vm->cpu.reg_16[R_PC] = addr;
+      vm->cpu.reg_16[R_PC] = addr - 1; /* +1 will be added by vm later */
     }
 }

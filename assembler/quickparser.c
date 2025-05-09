@@ -497,7 +497,6 @@ sh_qp_parse (sh_qp_t *qp)
           qp->cg[sec_text_bc + qp->cgc++] = HLT;
 
           DBG (printf ("found hlt instruction\n"));
-          break;
         }
 
       else if (_str_startswith_ncs (line, "int"))
@@ -553,7 +552,7 @@ sh_qp_parse (sh_qp_t *qp)
         {
           qp->cg[sec_text_bc + qp->cgc++] = JE_v;
 
-          line += 4;
+          line += 3;
           _STR_TRIM (line);
 
           int li = 0;
@@ -567,12 +566,12 @@ sh_qp_parse (sh_qp_t *qp)
 
           assert (li < (1 << 16) - 1);
 
-          li &= (1 << 16);
+          li &= ~(1 << 16);
 
           uint8_t li_lsbh = (uint8_t)(li >> 8); /* least significant half */
 
           uint8_t li_msbh
-              = (uint8_t)(li & (1 << 8)); /* most significant half */
+              = (uint8_t)(li & ~(1 << 8)); /* most significant half */
 
           if (SH_ARCH_TYPE == SH_ARCH_BIG_ENDIAN)
             {
@@ -586,6 +585,71 @@ sh_qp_parse (sh_qp_t *qp)
             }
 
           DBG (printf ("found je instruction: %d %d\n", li_lsbh, li_msbh));
+        }
+
+      else if (_str_startswith_ncs (line, "cmp"))
+        {
+          char *arg1, *arg2;
+
+          line += 3;
+          while (*line == ' ' || *line == '\t')
+            line++;
+
+          int gb = 0;
+          size_t j = 0;
+
+          for (j = 0; line[j] != '\0'; j++)
+            {
+              if (line[j] == ',' && !gb)
+                break;
+
+              if (_str_contains ("([", line[j]))
+                gb++;
+
+              if (_str_contains (")]", line[j]))
+                gb--;
+            }
+
+          arg1 = line;
+          line[j++] = '\0';
+          arg2 = line + j;
+
+          _STR_TRIMLEFT (arg2);
+          _STR_TRIMRIGHT (arg1);
+
+          int a1ir = is_register (arg1);
+          int a2ir;
+
+          if (a1ir != -1) /* standard cmp */
+            {
+              if (_str_isnumber (arg2))
+                {
+                  qp->cg[sec_text_bc + qp->cgc++] = CMP_rv;
+                  qp->cg[sec_text_bc + qp->cgc++] = a1ir;
+                  qp->cg[sec_text_bc + qp->cgc++] = atoi (arg2);
+                }
+              else if ((a2ir = is_register (arg2)) != -1)
+                {
+                  qp->cg[sec_text_bc + qp->cgc++] = CMP_rr;
+                  qp->cg[sec_text_bc + qp->cgc++] = a1ir;
+                  qp->cg[sec_text_bc + qp->cgc++] = a2ir;
+                }
+              else if (sh_qp_vt_keyexists (&qp->vt, arg2))
+                {
+                  /* label */
+                  qp->cg[sec_text_bc + qp->cgc++] = CMP_rv;
+                  qp->cg[sec_text_bc + qp->cgc++] = a1ir;
+                  qp->cg[sec_text_bc + qp->cgc++]
+                      = sh_qp_getfromvtable (&qp->vt, arg2);
+                }
+              else
+                {
+                  eprintf ("Invalid argument: '%s'", arg2);
+                  exit (EXIT_FAILURE);
+                }
+            }
+
+          DBG (printf ("found cmp instruction '%s', '%s'\n", arg1, arg2));
         }
     }
 

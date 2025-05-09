@@ -123,7 +123,6 @@ sh_vm_run (vm_t *v)
             char b2 = v->ram.v[++(*pc)];
 
             sh_je_v (v, b1, b2);
-            continue;
           }
           break;
 
@@ -134,13 +133,31 @@ sh_vm_run (vm_t *v)
 
             sh_jne_v (v, b1, b2);
             // printf ("%d\n", *pc);
-            continue;
+          }
+          break;
+
+        case CMP_rr:
+          {
+            char r1 = v->ram.v[++(*pc)];
+            char r2 = v->ram.v[++(*pc)];
+
+            sh_cmp_rr (v, r1, r2);
+          }
+          break;
+
+        case CMP_rv:
+          {
+            char r1 = v->ram.v[++(*pc)];
+            char v1 = v->ram.v[++(*pc)];
+
+            sh_cmp_rv (v, r1, v1);
           }
           break;
 
         default:
           {
-            eprintf ("sh_vm_run: invalid instruction %d\n", c);
+            eprintf ("sh_vm_run: invalid instruction %d\nExiting VM...\n", c);
+            return;
           }
           break;
         }

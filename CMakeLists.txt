@@ -21,6 +21,7 @@ add_library(sharna
     inst/interrupt.h inst/interrupt.c
     inst/je.h inst/je.c
     inst/jne.h inst/jne.c
+    inst/cmp.h inst/cmp.c
     inst/inst.h
 
     assembler/strutils.h assembler/strutils.c
