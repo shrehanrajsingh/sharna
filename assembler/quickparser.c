@@ -503,11 +503,11 @@ sh_qp_parse (sh_qp_t *qp)
         {
           qp->cg[sec_text_bc + qp->cgc++] = INTERRUPT;
 
-          line += 4;
-          _STR_TRIM (line);
+          // line += 4;
+          // _STR_TRIM (line);
 
-          assert (_str_isnumber (line));
-          qp->cg[sec_text_bc + qp->cgc++] = (uint8_t)atoi (line);
+          // assert (_str_isnumber (line));
+          // qp->cg[sec_text_bc + qp->cgc++] = (uint8_t)atoi (line);
 
           DBG (printf ("found interrupt instruction\n"));
         }

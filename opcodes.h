@@ -37,5 +37,5 @@ enum
 
 static const char *INST_3B[]
     = { "mov", "add", "cmp", "je", "jc", "jne", NULL };
-static const char *INST_2B[] = { "push", "pop", "int", "sje", NULL };
-static const char *INST_1B[] = { "hlt", NULL };
+static const char *INST_2B[] = { "push", "pop", "sje", NULL };
+static const char *INST_1B[] = { "hlt", "int", NULL };

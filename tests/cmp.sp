@@ -13,9 +13,9 @@ section .text
         hlt
 
     print_msg:
-        mov A, 1
-        mov B, 1
-        mov C, msg
-        mov D, 22
-        int 1
+        mov A, 1            ; IO
+        mov B, 1            ; stdout
+        mov C, msg          ; msg
+        mov D, 22           ; msglen
+        int
         je end

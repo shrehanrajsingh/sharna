@@ -17,5 +17,5 @@ section .text
         mov B, 1
         mov C, msg
         mov D, 22
-        int 1
+        int
         je end

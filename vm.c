@@ -55,7 +55,8 @@ sh_vm_run (vm_t *v)
 
         case INTERRUPT:
           {
-            uint8_t r1 = v->ram.v[++(*pc)];
+            // uint8_t r1 = v->ram.v[++(*pc)];
+            uint8_t r1 = *ra;
             // printf ("found interrupt: [A = %d] [B = %d] [C = %d] [D =
             // %d]\n",
             //         *ra, *rb, *rc, *rd);
