@@ -9,14 +9,18 @@
 ; end with 0.
 ; Message to print is stored in stack
 puts:
-    pop C           ; message is stored on stack
+    pop C           ; message on stack is now in C
     mov D, C        ; char *D = (char *) C
-    cmp D, 0        ; if (*D == '\0')
     l1:
-        inc D       ; D++;
-    je l1           ; goto l1;
-    sub D, C        ; D -= C; // String length
-    mov A, 1
-    mov B, 1
-    int 1
+    cmp D, 0
+    je l2           ; if (*D == '\0') goto l2
+    inc D           ; D++
+    jmp l1          ; goto l1
+    sub D, C        ; D -= C
+
+    l2:
+        mov A, 1    ; write
+        mov B, 1    ; stdout
+        int 1       ; IO
+    
     ret
