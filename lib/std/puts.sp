@@ -1,6 +1,6 @@
 ; Standard Sharna Library (SSL)
 ; I cannot call my standard library SSL (for obvious reasons)
-; Therefore, here it is, Sharna's Standard Library (STD)
+; Therefore, here it is, Sharna's Standard Library (STD/SSL)
 ; date: Friday, May 9
 ; time: 11:55 PM
 ; "At my lowest, I will code"
