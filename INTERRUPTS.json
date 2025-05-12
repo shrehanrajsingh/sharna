@@ -4,7 +4,7 @@
         "type": "IO",
         "description": "Input/Output for filestreams",
         "id": 1,
-        "dest": "int",
+        "dest": "int {arg}",
         "routines": [
             {
                 "name": "write",

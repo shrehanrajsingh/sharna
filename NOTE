@@ -1,5 +1,0 @@
-#1--
-Possible BUG: Sat May 10 12:06 AM
-int instruction does not use A register
-Status: Fixed
-----

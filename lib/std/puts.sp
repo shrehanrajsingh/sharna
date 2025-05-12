@@ -18,5 +18,5 @@ puts:
     sub D, C        ; D -= C; // String length
     mov A, 1
     mov B, 1
-    int
+    int 1
     ret

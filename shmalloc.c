@@ -39,3 +39,19 @@ _SH_Free (void *o)
 
   free (o);
 }
+
+SH_API char *
+_SH_Strdup (char *t)
+{
+  if (t == NULL)
+    {
+      t = shmalloc (sizeof (char));
+      *t = '\0';
+      return t;
+    }
+
+  char *r = shmalloc (strlen (t) + 1);
+  memcpy (r, t, strlen (t) + 1);
+
+  return r;
+}

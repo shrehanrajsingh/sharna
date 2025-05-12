@@ -1,5 +1,10 @@
 #include "quickparser.h"
 
+void _sh_qp_preprocess (sh_qp_t *);
+int _sh_qp_getprogsec (sh_qp_t *, char *);
+
+char incl_lab_count = '0';
+
 static int
 is_register (char *k)
 {
@@ -173,6 +178,8 @@ sh_qp_getfromvtable (sh_qp_vtable_t *vt, char *key)
 SH_API void
 sh_qp_parse (sh_qp_t *qp)
 {
+  _sh_qp_preprocess (qp);
+
   /* trim left */
   for (size_t i = 0; i < qp->fls; i++)
     {
@@ -220,6 +227,42 @@ sh_qp_parse (sh_qp_t *qp)
       //   printf ("(%s)\n", qp->flines[i]);
     }
 
+  for (size_t i = 0; i < qp->fls; i++)
+    {
+      int semicolon_idx = -1;
+      int in_str = 0;
+      char str_tk = 0;
+      size_t fld = strlen (qp->flines[i]);
+
+      for (size_t j = 0; j < fld; j++)
+        {
+          char d = qp->flines[i][j];
+
+          if (d == '\'' || d == '\"')
+            {
+              if (!in_str)
+                {
+                  str_tk = d;
+                  in_str = 1;
+                }
+              else
+                {
+                  if (d == str_tk)
+                    {
+                      in_str = 0;
+                    }
+                }
+            }
+
+          if (d == ';' && !in_str)
+            {
+              qp->flines[i][j] = '\0';
+            }
+        }
+
+      // printf ("{%s}\n", qp->flines[i]);
+    }
+
   size_t pp_bytecount = 0; /* pre processor byte count */
 
   size_t sec_text_lc = 0, sec_text_bc = 0;
@@ -228,7 +271,8 @@ sh_qp_parse (sh_qp_t *qp)
   /* add labels to memory */
   for (size_t i = 0; i < qp->fls; i++)
     {
-      char *line = qp->flines[i];
+      char *line = shstrdup (qp->flines[i]);
+      char *lp = line;
 
       if (*line == '\0')
         continue;
@@ -236,7 +280,7 @@ sh_qp_parse (sh_qp_t *qp)
       if (line[strlen (line) - 1] == ':')
         {
           line[strlen (line) - 1] = '\0';
-          sh_qp_addtovtable (&qp->vt, line, pp_bytecount);
+          sh_qp_addtovtable (&qp->vt, shstrdup (line), pp_bytecount);
           continue;
         }
 
@@ -363,11 +407,18 @@ sh_qp_parse (sh_qp_t *qp)
 
           shfree (buf);
         }
+
+      shfree (lp);
     }
+
+  qp->prog_sections[qp->ps_c].name = NULL;
+  qp->prog_sections[qp->ps_c].bc = pp_bytecount;
+  qp->prog_sections[qp->ps_c++].lc = qp->fls;
 
   for (size_t i = sec_text_lc + 1; i < qp->fls; i++)
     {
-      char *line = qp->flines[i];
+      char *line = shstrdup (qp->flines[i]);
+      char *lp = line;
 
       while (*line == ' ' || *line == '\t')
         line++;
@@ -503,13 +554,13 @@ sh_qp_parse (sh_qp_t *qp)
         {
           qp->cg[sec_text_bc + qp->cgc++] = INTERRUPT;
 
-          // line += 4;
-          // _STR_TRIM (line);
+          line += 4;
+          _STR_TRIM (line);
 
-          // assert (_str_isnumber (line));
-          // qp->cg[sec_text_bc + qp->cgc++] = (uint8_t)atoi (line);
+          assert (_str_isnumber (line));
+          qp->cg[sec_text_bc + qp->cgc++] = (uint8_t)atoi (line);
 
-          DBG (printf ("found interrupt instruction\n"));
+          DBG (printf ("found interrupt instruction: %s\n", line));
         }
 
       else if (_str_startswith_ncs (line, "jne"))
@@ -587,6 +638,45 @@ sh_qp_parse (sh_qp_t *qp)
           DBG (printf ("found je instruction: %d %d\n", li_lsbh, li_msbh));
         }
 
+      else if (_str_startswith_ncs (line, "jmp"))
+        {
+          qp->cg[sec_text_bc + qp->cgc++] = JMP_v;
+
+          line += 3;
+          _STR_TRIM (line);
+
+          int li = 0;
+
+          if (_str_isnumber (line))
+            li = atoi (line);
+          else if (sh_qp_vt_keyexists (&qp->vt, line))
+            {
+              li = sh_qp_getfromvtable (&qp->vt, line);
+            }
+
+          assert (li < (1 << 16) - 1);
+
+          li &= ~(1 << 16);
+
+          uint8_t li_lsbh = (uint8_t)(li >> 8); /* least significant half */
+
+          uint8_t li_msbh
+              = (uint8_t)(li & ~(1 << 8)); /* most significant half */
+
+          if (SH_ARCH_TYPE == SH_ARCH_BIG_ENDIAN)
+            {
+              qp->cg[sec_text_bc + qp->cgc++] = li_lsbh;
+              qp->cg[sec_text_bc + qp->cgc++] = li_msbh;
+            }
+          else
+            {
+              qp->cg[sec_text_bc + qp->cgc++] = li_msbh;
+              qp->cg[sec_text_bc + qp->cgc++] = li_lsbh;
+            }
+
+          DBG (printf ("found jmp instruction: %d %d\n", li_lsbh, li_msbh));
+        }
+
       else if (_str_startswith_ncs (line, "cmp"))
         {
           char *arg1, *arg2;
@@ -651,13 +741,16 @@ sh_qp_parse (sh_qp_t *qp)
 
           DBG (printf ("found cmp instruction '%s', '%s'\n", arg1, arg2));
         }
+
+      shfree (lp);
     }
 
   qp->cgc = 0;
 
   for (size_t i = sec_data_lc + 1; i < qp->fls; i++)
     {
-      char *line = qp->flines[i];
+      char *line = shstrdup (qp->flines[i]);
+      char *lp = line;
 
       while (*line == ' ' || *line == '\t')
         line++;
@@ -743,9 +836,350 @@ sh_qp_parse (sh_qp_t *qp)
 
           shfree (buf);
         }
+
+      shfree (lp);
     }
 
-  qp->prog_sections[qp->ps_c].bc = pp_bytecount;
-  qp->prog_sections[qp->ps_c++].name = NULL;
   qp->cgc = pp_bytecount;
+}
+
+void
+_sh_qp_preprocess (sh_qp_t *qp)
+{
+  const int CAP_DEF = 64;
+
+  char **extra_sec_text_code = shmalloc (CAP_DEF * sizeof (char *));
+  size_t estc_s = 0;
+  size_t estc_c = CAP_DEF;
+
+  char **extra_sec_data_code = shmalloc (CAP_DEF * sizeof (char *));
+  size_t esdc_s = 0;
+  size_t esdc_c = CAP_DEF;
+
+  for (size_t i = 0; i < qp->fls; i++)
+    {
+      char *l = qp->flines[i];
+      _STR_TRIMLEFT (l);
+
+      if (*l == '%')
+        {
+          /* preprocessor directive */
+          char *id = shstrdup (++l);
+          id[strstr (l, " ") - l] = '\0';
+
+          if (!strcmp (id, "icl"))
+            {
+              /* include */
+              char *fname = id + 4;
+
+              _STR_TRIM (fname);
+              size_t fd = strlen (fname) - 1;
+              assert (*fname == '\"' && fname[fd] == '\"');
+
+              fname[fd] = '\0';
+              fname++;
+
+              sh_qp_t qp2 = sh_qp_new_fromFile (fname);
+              sh_qp_parse (&qp2);
+
+              int sec_text_id = _sh_qp_getprogsec (&qp2, "text");
+              int sec_data_id = _sh_qp_getprogsec (&qp2, "data");
+
+              // printf ("%d %d\n", sec_text_id, sec_data_id);
+
+              if (sec_text_id != -1)
+                {
+                  int sec_text_lc = qp2.prog_sections[sec_text_id].lc;
+                  int nlc = qp2.prog_sections[sec_text_id + 1].lc;
+
+                  for (size_t j = sec_text_lc + 1; j < nlc; j++)
+                    {
+                      if (estc_s == estc_c)
+                        {
+                          estc_c += CAP_DEF;
+                          extra_sec_text_code = shrealloc (
+                              extra_sec_text_code, estc_c * sizeof (char *));
+                        }
+
+                      extra_sec_text_code[estc_s++] = shstrdup (qp2.flines[j]);
+                    }
+                }
+
+              if (sec_data_id != -1)
+                {
+                  int sec_data_lc = qp2.prog_sections[sec_data_id].lc;
+                  int nlc = qp2.prog_sections[sec_data_id + 1].lc;
+
+                  for (size_t j = sec_data_lc + 1; j < nlc; j++)
+                    {
+                      if (esdc_s == esdc_c)
+                        {
+                          esdc_c += CAP_DEF;
+                          extra_sec_data_code = shrealloc (
+                              extra_sec_data_code, esdc_c * sizeof (char *));
+                        }
+
+                      extra_sec_data_code[esdc_s++] = shstrdup (qp2.flines[j]);
+                    }
+                }
+            }
+
+          shfree (id);
+          qp->flines[i][0] = '\0';
+        }
+    }
+
+  // for (size_t i = 0; i < qp->fls; i++)
+  //   {
+  //     printf ("(%d) %s\n", i, qp->flines[i]);
+  //   }
+  // printf ("-----\n");
+
+  // printf ("%d %d\n", estc_s, esdc_s);
+  /* Insert text section code */
+  int text_section_idx = -1;
+  int data_section_idx = -1;
+
+  for (size_t i = 0; i < qp->fls; i++)
+    {
+      char *line_copy = shstrdup (qp->flines[i]);
+      char *lcp = line_copy;
+      _STR_TRIM (line_copy);
+
+      if (!strcmp (line_copy, "section .text"))
+        {
+          text_section_idx = i;
+          shfree (lcp);
+          break;
+        }
+      shfree (lcp);
+    }
+
+  for (size_t i = 0; i < qp->fls; i++)
+    {
+      char *line_copy = shstrdup (qp->flines[i]);
+      char *lcp = line_copy;
+      _STR_TRIM (line_copy);
+
+      if (!strcmp (line_copy, "section .data"))
+        {
+          data_section_idx = i;
+          shfree (lcp);
+          break;
+        }
+      shfree (lcp);
+    }
+
+  // printf ("%d %d\n", data_section_idx, text_section_idx);
+
+  if (estc_s > 0)
+    {
+      char *lab = shstrdup ("lab1:");
+      lab[strlen (lab) - 2] = incl_lab_count++;
+      char *jmplb = shmalloc ((strlen (lab) + 8) * sizeof (char));
+      sprintf (jmplb, "jmp %s", lab);
+      jmplb[strlen (jmplb) - 1] = '\0';
+
+      if (text_section_idx != -1)
+        {
+          size_t new_total = qp->fls + estc_s + 2;
+          char **new_flines = shmalloc (new_total * sizeof (char *));
+
+          for (size_t i = 0; i <= text_section_idx; i++)
+            {
+              new_flines[i] = qp->flines[i];
+            }
+
+          new_flines[text_section_idx + 1] = jmplb; // jmp label
+          for (size_t i = 0; i < estc_s; i++)
+            {
+              new_flines[text_section_idx + 2 + i]
+                  = shstrdup (extra_sec_text_code[i]);
+            }
+          new_flines[text_section_idx + 2 + estc_s] = lab; // label:
+
+          for (size_t i = text_section_idx + 1; i < qp->fls; i++)
+            {
+              new_flines[i + estc_s + 2] = qp->flines[i];
+            }
+
+          shfree (qp->flines);
+          qp->flines = new_flines;
+          qp->fls = new_total;
+        }
+      else
+        {
+          if (data_section_idx != -1)
+            {
+              size_t new_total
+                  = qp->fls + estc_s + 2 + 1; /* +1 for "section .text" line */
+              char **new_flines = shmalloc (new_total * sizeof (char *));
+
+              for (size_t i = 0; i < data_section_idx; i++)
+                {
+                  new_flines[i] = qp->flines[i];
+                }
+
+              new_flines[data_section_idx] = shstrdup ("section .text");
+              new_flines[data_section_idx + 1] = jmplb;
+
+              for (size_t i = 0; i < estc_s; i++)
+                {
+                  new_flines[data_section_idx + 2 + i]
+                      = shstrdup (extra_sec_text_code[i]);
+                }
+
+              new_flines[data_section_idx + estc_s + 2] = lab;
+              new_flines[data_section_idx + estc_s + 3]
+                  = qp->flines[data_section_idx]; /* section .data */
+
+              for (size_t i = data_section_idx + 1; i < qp->fls; i++)
+                {
+                  new_flines[i + estc_s + 3] = qp->flines[i];
+                }
+
+              shfree (qp->flines);
+              qp->flines = new_flines;
+              qp->fls = new_total;
+            }
+          else
+            {
+              size_t new_total
+                  = qp->fls + estc_s + 2 + 1; /* +1 for "section .text" line */
+              char **new_flines = shmalloc (new_total * sizeof (char *));
+
+              new_flines[0] = shstrdup ("section .text");
+              new_flines[1] = jmplb;
+
+              for (size_t i = 0; i < estc_s; i++)
+                {
+                  new_flines[1 + i] = shstrdup (extra_sec_text_code[i]);
+                }
+
+              new_flines[estc_s + 1] = lab;
+
+              for (size_t i = 0; i < qp->fls; i++)
+                {
+                  new_flines[i + estc_s + 2] = qp->flines[i];
+                }
+
+              shfree (qp->flines);
+              qp->flines = new_flines;
+              qp->fls = new_total;
+            }
+        }
+    }
+
+  if (esdc_s > 0)
+    {
+      if (data_section_idx != -1)
+        {
+          size_t new_total = qp->fls + esdc_s;
+          char **new_flines = shmalloc (new_total * sizeof (char *));
+
+          for (size_t i = 0; i <= data_section_idx; i++)
+            {
+              new_flines[i] = qp->flines[i];
+            }
+
+          for (size_t i = 0; i < esdc_s; i++)
+            {
+              new_flines[data_section_idx + 1 + i]
+                  = shstrdup (extra_sec_data_code[i]);
+            }
+
+          for (size_t i = data_section_idx + 1; i < qp->fls; i++)
+            {
+              new_flines[i + esdc_s] = qp->flines[i];
+            }
+
+          shfree (qp->flines);
+          qp->flines = new_flines;
+          qp->fls = new_total;
+        }
+      else
+        {
+          if (text_section_idx != -1)
+            {
+              size_t new_total
+                  = qp->fls + esdc_s + 1; /* +1 for "section .data" line */
+              char **new_flines = shmalloc (new_total * sizeof (char *));
+
+              for (size_t i = 0; i < text_section_idx; i++)
+                {
+                  new_flines[i] = qp->flines[i];
+                }
+
+              new_flines[text_section_idx] = shstrdup ("section .data");
+
+              for (size_t i = 0; i < esdc_s; i++)
+                {
+                  new_flines[text_section_idx + 1 + i]
+                      = shstrdup (extra_sec_data_code[i]);
+                }
+
+              new_flines[text_section_idx + esdc_s + 1]
+                  = qp->flines[text_section_idx]; /* section .text */
+
+              for (size_t i = text_section_idx + 1; i < qp->fls; i++)
+                {
+                  new_flines[i + esdc_s + 1] = qp->flines[i];
+                }
+
+              shfree (qp->flines);
+              qp->flines = new_flines;
+              qp->fls = new_total;
+            }
+          else
+            {
+              size_t new_total
+                  = qp->fls + esdc_s + 1; /* +1 for "section .data" line */
+              char **new_flines = shmalloc (new_total * sizeof (char *));
+
+              new_flines[0] = shstrdup ("section .data");
+
+              for (size_t i = 0; i < esdc_s; i++)
+                {
+                  new_flines[1 + i] = shstrdup (extra_sec_data_code[i]);
+                }
+
+              for (size_t i = 0; i < qp->fls; i++)
+                {
+                  new_flines[i + esdc_s + 1] = qp->flines[i];
+                }
+
+              shfree (qp->flines);
+              qp->flines = new_flines;
+              qp->fls = new_total;
+            }
+        }
+    }
+
+  for (size_t i = 0; i < estc_s; i++)
+    {
+      shfree (extra_sec_text_code[i]);
+    }
+  shfree (extra_sec_text_code);
+
+  for (size_t i = 0; i < esdc_s; i++)
+    {
+      shfree (extra_sec_data_code[i]);
+    }
+  shfree (extra_sec_data_code);
+
+  for (size_t i = 0; i < qp->fls; i++)
+    {
+      printf ("(%d) %s\n", i, qp->flines[i]);
+    }
+}
+
+int
+_sh_qp_getprogsec (sh_qp_t *qp, char *name)
+{
+  for (int i = 0; i < qp->ps_c; i++)
+    if (qp->prog_sections[i].name != NULL
+        && !strcmp (qp->prog_sections[i].name, name))
+      return i;
+
+  return -1;
 }

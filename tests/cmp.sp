@@ -17,5 +17,5 @@ section .text
         mov B, 1            ; stdout
         mov C, msg          ; msg
         mov D, 22           ; msglen
-        int
+        int 1               ; 1 for IO
         je end

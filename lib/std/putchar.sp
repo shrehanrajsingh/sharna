@@ -13,5 +13,5 @@ putchar:
     mov A, 1        ; IO
     mov B, 1        ; STDOUT
     mov D, 1        ; msglen
-    int             ; interrupt
+    int 1           ; interrupt
     ret             ; give back control to OG memory

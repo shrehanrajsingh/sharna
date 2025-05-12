@@ -22,7 +22,8 @@ enum
   JC_v,   /* jump to a constant value address if SF.CF = 1, 2-byte jump */
   JC_r, /* jump to an address contained in a register if SF.CF = 1, 2-byte jump
          */
-  NOI   /* number of instructions */
+  JMP_v, /* jump to memory address, 2-byte jump */
+  NOI    /* number of instructions */
 };
 
 #define MOV (MOV_rv)
@@ -34,8 +35,9 @@ enum
 #define JNE (JNE_v)
 #define SJE (SJE_v)
 #define JC (JC_v)
+#define JMP (JMP_v)
 
 static const char *INST_3B[]
-    = { "mov", "add", "cmp", "je", "jc", "jne", NULL };
-static const char *INST_2B[] = { "push", "pop", "sje", NULL };
-static const char *INST_1B[] = { "hlt", "int", NULL };
+    = { "mov", "add", "cmp", "je", "jc", "jne", "jmp", NULL };
+static const char *INST_2B[] = { "push", "pop", "sje", "int", NULL };
+static const char *INST_1B[] = { "hlt", NULL };

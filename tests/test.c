@@ -110,7 +110,10 @@ test3 ()
   //   }
   // printf ("-----\n");
 
+  printf ("---------\n");
   sh_vm_run (&vm);
+  printf ("\n---------\n");
+
   printf ("\nRegisters:\n");
 
   for (int i = 0; i < R_8bit; i++)
