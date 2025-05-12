@@ -5,7 +5,7 @@
 ; time: 11:55 PM
 ; "At my lowest, I will code"
 
-; Standard putc expects strings to 
+; Standard puts expects strings to 
 ; end with 0.
 ; Message to print is stored in stack
 puts:
