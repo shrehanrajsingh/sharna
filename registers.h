@@ -13,6 +13,7 @@ enum
   R_SF,   /* status flag */
   R_8bit, /* number of 8 bit registers */
   R_PC = 0,
+  R_SP = 1,
   R_16bit /* total number of registers */
 };
 

@@ -1,9 +1,12 @@
-%icl "tests/print_simple.sp"
-%icl "tests/other.sp"
+section .data
+msg:
+    db "Hello, World!", 0
 
 section .text
-    mov C, othermsg
-    mov D, 28
-    jmp print
-end:
+    push msg
+    mov A, 1
+    mov B, 1
+    pop C
+    mov D, 13
+    int 1
     hlt

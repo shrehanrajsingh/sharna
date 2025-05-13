@@ -637,7 +637,6 @@ sh_qp_parse (sh_qp_t *qp)
 
           DBG (printf ("found je instruction: %d %d\n", li_lsbh, li_msbh));
         }
-
       else if (_str_startswith_ncs (line, "jmp"))
         {
           qp->cg[sec_text_bc + qp->cgc++] = JMP_v;
@@ -676,7 +675,6 @@ sh_qp_parse (sh_qp_t *qp)
 
           DBG (printf ("found jmp instruction: %d %d\n", li_lsbh, li_msbh));
         }
-
       else if (_str_startswith_ncs (line, "cmp"))
         {
           char *arg1, *arg2;
@@ -740,6 +738,44 @@ sh_qp_parse (sh_qp_t *qp)
             }
 
           DBG (printf ("found cmp instruction '%s', '%s'\n", arg1, arg2));
+        }
+      else if (_str_startswith_ncs (line, "push"))
+        {
+          line += 5;
+          _STR_TRIM (line);
+          int a1ir = is_register (line);
+
+          if (is_register (line) != -1)
+            {
+              qp->cg[sec_text_bc + qp->cgc++] = PUSH_r;
+              qp->cg[sec_text_bc + qp->cgc++] = a1ir;
+            }
+          else if (_str_isnumber (line))
+            {
+              qp->cg[sec_text_bc + qp->cgc++] = PUSH_v;
+              qp->cg[sec_text_bc + qp->cgc++] = atoi (line);
+            }
+          else if (sh_qp_vt_keyexists (&qp->vt, line))
+            {
+              qp->cg[sec_text_bc + qp->cgc++] = PUSH_v;
+              qp->cg[sec_text_bc + qp->cgc++]
+                  = sh_qp_getfromvtable (&qp->vt, line);
+            }
+
+          DBG (printf ("found push instruction '%s'\n", line));
+        }
+      else if (_str_startswith_ncs (line, "pop"))
+        {
+          line += 4;
+          _STR_TRIM (line);
+          int a1ir = is_register (line);
+
+          assert (a1ir != -1);
+
+          qp->cg[sec_text_bc + qp->cgc++] = POP_r;
+          qp->cg[sec_text_bc + qp->cgc++] = a1ir;
+
+          DBG (printf ("found pop instruction '%s'\n", line));
         }
 
       shfree (lp);

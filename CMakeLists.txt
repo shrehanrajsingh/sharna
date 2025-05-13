@@ -23,6 +23,8 @@ add_library(sharna
     inst/jne.h inst/jne.c
     inst/cmp.h inst/cmp.c
     inst/jmp.h inst/jmp.c
+    inst/push.h inst/push.c
+    inst/pop.h inst/pop.c
     inst/inst.h
 
     assembler/strutils.h assembler/strutils.c

@@ -163,6 +163,27 @@ sh_vm_run (vm_t *v)
           }
           break;
 
+        case PUSH_r:
+          {
+            char r = v->ram.v[++(*pc)];
+            sh_push_r (v, r);
+          }
+          break;
+
+        case PUSH_v:
+          {
+            char b = v->ram.v[++(*pc)];
+            sh_push_v (v, b);
+          }
+          break;
+
+        case POP_r:
+          {
+            char b = v->ram.v[++(*pc)];
+            sh_pop_r (v, b);
+          }
+          break;
+
         default:
           {
             eprintf ("sh_vm_run: invalid instruction %d\nExiting VM...\n", c);

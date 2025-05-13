@@ -36,6 +36,7 @@ test1 ()
     }
 
   printf ("PC: %d\n", vm.cpu.reg_16[0]);
+  printf ("SP: %d\n", vm.cpu.reg_16[1]);
 }
 
 void
@@ -104,6 +105,8 @@ test3 ()
   sh_ram_reset_offsets_m (&vm.ram, sec_text_bc, sec_data_bc, sec_eop_bc,
                           RAM_SIZE - 1);
 
+  vm.cpu.reg_16[R_SP] = vm.ram.offsets.stack;
+
   // for (size_t i = 0; i < vm.ram.l; i++)
   //   {
   //     printf ("%d\n", vm.ram.v[i]);
@@ -122,6 +125,7 @@ test3 ()
     }
 
   printf ("PC: %d\n", vm.cpu.reg_16[0]);
+  printf ("SP: %d\n", vm.cpu.reg_16[1]);
 
   sh_qp_close (&qp);
 }

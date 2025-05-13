@@ -7,3 +7,5 @@
 #include "jmp.h"
 #include "jne.h"
 #include "mov.h"
+#include "pop.h"
+#include "push.h"
