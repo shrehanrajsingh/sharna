@@ -1,7 +1,10 @@
 #pragma once
 
 #include "add.h"
+#include "call.h"
 #include "cmp.h"
+#include "dec.h"
+#include "inc.h"
 #include "interrupt.h"
 #include "je.h"
 #include "jmp.h"
@@ -9,3 +12,5 @@
 #include "mov.h"
 #include "pop.h"
 #include "push.h"
+#include "ret.h"
+#include "sub.h"

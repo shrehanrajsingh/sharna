@@ -98,24 +98,41 @@ test3 ()
 
   sh_ram_load (&vm.ram, qp.cg, 0, qp.cgc);
 
-  size_t sec_data_bc = qp.prog_sections[0].bc;
-  size_t sec_text_bc = qp.prog_sections[1].bc;
-  size_t sec_eop_bc = qp.prog_sections[2].bc;
+  size_t sec_data_bc = 0;
+  size_t sec_text_bc = 0;
+  size_t sec_eop_bc = 0;
+
+  for (size_t i = 0; i < qp.ps_c; i++)
+    {
+      if (qp.prog_sections[i].name
+          && !strcmp (qp.prog_sections[i].name, "data"))
+        sec_data_bc = qp.prog_sections[i].bc;
+      else if (qp.prog_sections[i].name
+               && !strcmp (qp.prog_sections[i].name, "text"))
+        sec_text_bc = qp.prog_sections[i].bc;
+      else if (qp.prog_sections[i].name == NULL)
+        sec_eop_bc = qp.prog_sections[i].bc;
+    }
 
   sh_ram_reset_offsets_m (&vm.ram, sec_text_bc, sec_data_bc, sec_eop_bc,
                           RAM_SIZE - 1);
 
   vm.cpu.reg_16[R_SP] = vm.ram.offsets.stack;
 
-  // for (size_t i = 0; i < vm.ram.l; i++)
-  //   {
-  //     printf ("%d\n", vm.ram.v[i]);
-  //   }
-  // printf ("-----\n");
+  for (size_t i = 0; i < vm.ram.l; i++)
+    {
+      printf ("%d\t", vm.ram.v[i]);
+    }
+  printf ("\n");
 
-  printf ("---------\n");
+  printf ("\n---------\n");
   sh_vm_run (&vm);
   printf ("\n---------\n");
+
+  // for (size_t i = 0; i < qp.fls; i++)
+  //   {
+  //     printf ("%s\n", qp.flines[i]);
+  //   }
 
   printf ("\nRegisters:\n");
 

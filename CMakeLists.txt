@@ -25,6 +25,11 @@ add_library(sharna
     inst/jmp.h inst/jmp.c
     inst/push.h inst/push.c
     inst/pop.h inst/pop.c
+    inst/call.h inst/call.c
+    inst/ret.h inst/ret.c
+    inst/sub.h inst/sub.c
+    inst/inc.h inst/inc.c
+    inst/dec.h inst/dec.c
     inst/inst.h
 
     assembler/strutils.h assembler/strutils.c

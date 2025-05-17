@@ -1,15 +1,15 @@
-#include "add.h"
+#include "sub.h"
 #include "../vm.h"
 
 SH_API void
-sh_add_rv (struct _sharna_vm_s *vm, char r1, char v)
+sh_sub_rv (struct _sharna_vm_s *vm, char r1, char v)
 {
   uint8_t orig_val = vm->cpu.reg_8[r1];
 
   vm->cpu.reg_8[R_SF] &= ~(REG_SF_OF | REG_SF_CF | REG_SF_ZF | REG_SF_SF
                            | REG_SF_AF | REG_SF_PF);
 
-  uint16_t u_result = (uint16_t)orig_val + (uint16_t)v;
+  uint16_t u_result = (uint16_t)orig_val - (uint16_t)v;
   if (u_result > 255)
     {
       vm->cpu.reg_8[R_SF] |= REG_SF_CF;
@@ -17,13 +17,13 @@ sh_add_rv (struct _sharna_vm_s *vm, char r1, char v)
 
   int8_t s_orig = (int8_t)orig_val;
   int8_t s_v = (int8_t)v;
-  int16_t s_result = (int16_t)s_orig + (int16_t)s_v;
+  int16_t s_result = (int16_t)s_orig - (int16_t)s_v;
   if (s_result < -128 || s_result > 127)
     {
       vm->cpu.reg_8[R_SF] |= REG_SF_OF;
     }
 
-  vm->cpu.reg_8[r1] += v;
+  vm->cpu.reg_8[r1] -= v;
 
   if (vm->cpu.reg_8[r1] == 0)
     {
@@ -54,7 +54,7 @@ sh_add_rv (struct _sharna_vm_s *vm, char r1, char v)
 }
 
 SH_API void
-sh_add_rr (struct _sharna_vm_s *vm, char r1, char r2)
+sh_sub_rr (struct _sharna_vm_s *vm, char r1, char r2)
 {
   uint8_t v = vm->cpu.reg_8[r1];
   uint8_t orig_val = v;
@@ -62,7 +62,7 @@ sh_add_rr (struct _sharna_vm_s *vm, char r1, char r2)
   vm->cpu.reg_8[R_SF] &= ~(REG_SF_OF | REG_SF_CF | REG_SF_ZF | REG_SF_SF
                            | REG_SF_AF | REG_SF_PF);
 
-  uint16_t u_result = (uint16_t)orig_val + (uint16_t)v;
+  uint16_t u_result = (uint16_t)orig_val - (uint16_t)v;
   if (u_result > 255)
     {
       vm->cpu.reg_8[R_SF] |= REG_SF_CF;
@@ -70,13 +70,13 @@ sh_add_rr (struct _sharna_vm_s *vm, char r1, char r2)
 
   int8_t s_orig = (int8_t)orig_val;
   int8_t s_v = (int8_t)v;
-  int16_t s_result = (int16_t)s_orig + (int16_t)s_v;
+  int16_t s_result = (int16_t)s_orig - (int16_t)s_v;
   if (s_result < -128 || s_result > 127)
     {
       vm->cpu.reg_8[R_SF] |= REG_SF_OF;
     }
 
-  vm->cpu.reg_8[r1] += vm->cpu.reg_8[r2];
+  vm->cpu.reg_8[r1] -= vm->cpu.reg_8[r2];
 
   if (vm->cpu.reg_8[r1] == 0)
     {

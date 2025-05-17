@@ -32,15 +32,15 @@ _str_startswith_ncs (char *b, char *l)
 SH_API int
 _str_contains (char *b, char l)
 {
-  while (*b++ != l)
-    ;
-  return !!*b;
+  while (*b != '\0' && *b != l)
+    b++;
+  return *b == l;
 }
 
 SH_API int
 _str_isnumber (char *b)
 {
-  while (*b >= '0' && *b <= '9')
+  while (*b != '\0' && *b >= '0' && *b <= '9')
     b++;
 
   return !*b;

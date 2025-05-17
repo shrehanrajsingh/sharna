@@ -9,10 +9,14 @@
 ; end with 0.
 ; Message to print is stored in stack
 puts:
+    ; preserve PC
+    pop E
+    pop F
+
     pop C           ; message on stack is now in C
     mov D, C        ; char *D = (char *) C
     l1:
-    cmp D, 0
+    cmp [D], 0
     je l2           ; if (*D == '\0') goto l2
     inc D           ; D++
     jmp l1          ; goto l1
@@ -23,4 +27,7 @@ puts:
         mov B, 1    ; stdout
         int 1       ; IO
     
+    ; restore PC
+    push F
+    push E
     ret

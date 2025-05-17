@@ -36,6 +36,15 @@ sh_vm_run (vm_t *v)
           }
           break;
 
+        case MOV_rr:
+          {
+            char r1 = v->ram.v[++(*pc)];
+            char r2 = v->ram.v[++(*pc)];
+
+            sh_mov_rr (v, r1, r2);
+          }
+          break;
+
         case ADD_rv:
           {
             char r = v->ram.v[++(*pc)];
@@ -154,6 +163,24 @@ sh_vm_run (vm_t *v)
           }
           break;
 
+        case CMP_byte_r_v:
+          {
+            char r1 = v->ram.v[++(*pc)];
+            char v1 = v->ram.v[++(*pc)];
+
+            sh_cmp_byte_r_v (v, r1, v1);
+          }
+          break;
+
+        case CMP_byte_r_r:
+          {
+            char r1 = v->ram.v[++(*pc)];
+            char r2 = v->ram.v[++(*pc)];
+
+            sh_cmp_byte_r_r (v, r1, r2);
+          }
+          break;
+
         case JMP_v:
           {
             char b1 = v->ram.v[++(*pc)];
@@ -181,6 +208,53 @@ sh_vm_run (vm_t *v)
           {
             char b = v->ram.v[++(*pc)];
             sh_pop_r (v, b);
+          }
+          break;
+
+        case CALL_v:
+          {
+            char b1 = v->ram.v[++(*pc)];
+            char b2 = v->ram.v[++(*pc)];
+
+            sh_call_v (v, b1, b2);
+          }
+          break;
+
+        case RET:
+          {
+            sh_ret (v);
+          }
+          break;
+
+        case SUB_rr:
+          {
+            char r1 = v->ram.v[++(*pc)];
+            char r2 = v->ram.v[++(*pc)];
+
+            sh_sub_rr (v, r1, r2);
+          }
+          break;
+
+        case SUB_rv:
+          {
+            char r = v->ram.v[++(*pc)];
+            char vl = v->ram.v[++(*pc)];
+
+            sh_sub_rv (v, r, vl);
+          }
+          break;
+
+        case INC_r:
+          {
+            char r = v->ram.v[++(*pc)];
+            sh_inc_r (v, r);
+          }
+          break;
+
+        case DEC_r:
+          {
+            char r = v->ram.v[++(*pc)];
+            sh_dec_r (v, r);
           }
           break;
 
