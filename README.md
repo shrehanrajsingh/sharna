@@ -1,0 +1,13 @@
+This directory contains the code for Sharna Virtual Machine (SVM)
+
+SVM is free software. See the files whose names start with COPYING for copying permission.
+
+Building the project from source can be done through traditional CMake way, although I am looking forward to a configure script.
+
+The `tests/` directory contains many examples of how SVM Assembler works, with an example `test.c` that explains how to use the VM.
+
+A documentation is underway; if anyone wants to contribute one, feel free to fork and raise a PR.
+
+The `lib/std` directory contains the code for Sharna Standard Library (SSL/STD); feel free to add any routines which could reduce repititive tasks.
+
+A C Compiler for SVM is idealized, although I am not sure whether I would code it in assembly or as a separate project that just generates bytecode.

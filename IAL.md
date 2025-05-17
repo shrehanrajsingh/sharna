@@ -14,8 +14,18 @@
 |-------------|-------------|
 | `mov` | Move data between registers |
 | `add` | Add values |
+| `sub` | Subtracts values |
 | `push` | Push to stack |
 | `pop` | Pop from stack |
+| `call` | Transfer control to other routine |
+| `ret` | Give back control passed on by `call` |
+| `inc` | Increase the value in a register by 1 |
+| `dec` | Reduce the value in a register by 1 |
+| `int` | Standard interrupt to use different hardware routines |
+| `je` | Conditional jump |
+| `jne` | Conditional jump |
+| `jmp` | Jump |
+| `cmp` | Compare bytes |
 | `halt` | Stop execution |
 
 ## 📚 Stack
