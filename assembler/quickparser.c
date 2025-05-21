@@ -414,6 +414,45 @@ sh_qp_parse (sh_qp_t *qp)
 
           shfree (buf);
         }
+      else if (_str_startswith_ncs (line, "times"))
+        {
+          line += 5;
+          _STR_TRIM (line);
+
+          int rep = 0;
+          char rep_byte = 0;
+          while (isnumber (*line))
+            rep = rep * 10 + (*line++ - '0');
+
+          printf ("rep: %d\n", rep);
+
+          // _STR_TRIMLEFT (line);
+
+          // if (_str_startswith_ncs (line, "db"))
+          //   {
+          //     line += 2;
+          //     _STR_TRIMLEFT (line);
+
+          //     /* only repeat single bytes */
+          //     assert (isnumber (*line) || *line == '\'');
+
+          //     if (*line == '\'')
+          //       {
+          //         rep_byte = *++line;
+          //       }
+          //     else
+          //       {
+          //         while (isnumber (*line))
+          //           rep_byte = rep_byte * 10 + (*line++ - '0');
+          //       }
+          //   }
+          // else
+          //   {
+          //     __development__
+          //   }
+
+          pp_bytecount += rep;
+        }
 
       shfree (lp);
     }
@@ -1042,6 +1081,46 @@ sh_qp_parse (sh_qp_t *qp)
 
           shfree (buf);
         }
+      else if (_str_startswith_ncs (line, "times"))
+        {
+          line += 5;
+          _STR_TRIM (line);
+
+          int rep = 0;
+          char rep_byte = 0;
+          while (isnumber (*line))
+            rep = rep * 10 + (*line++ - '0');
+
+          printf ("rep: %d\n", rep);
+
+          _STR_TRIMLEFT (line);
+
+          if (_str_startswith_ncs (line, "db"))
+            {
+              line += 2;
+              _STR_TRIMLEFT (line);
+
+              /* only repeat single bytes */
+              assert (isnumber (*line) || *line == '\'');
+
+              if (*line == '\'')
+                {
+                  rep_byte = *++line;
+                }
+              else
+                {
+                  while (isnumber (*line))
+                    rep_byte = rep_byte * 10 + (*line++ - '0');
+                }
+            }
+          else
+            {
+              __development__
+            }
+
+          while (rep--)
+            qp->cg[sec_data_bc + qp->cgc++] = rep_byte;
+        }
 
       shfree (lp);
     }
@@ -1380,10 +1459,10 @@ _sh_qp_preprocess (sh_qp_t *qp)
     }
   shfree (extra_sec_data_code);
 
-  // for (size_t i = 0; i < qp->fls; i++)
-  //   {
-  //     printf ("(%d) %s\n", i, qp->flines[i]);
-  //   }
+  for (size_t i = 0; i < qp->fls; i++)
+    {
+      printf ("(%d) %s\n", i, qp->flines[i]);
+    }
 }
 
 int

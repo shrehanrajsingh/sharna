@@ -8,6 +8,7 @@
 ; Standard puts expects strings to 
 ; end with 0.
 ; Message to print is stored in stack
+section .text
 puts:
     ; preserve PC
     pop E

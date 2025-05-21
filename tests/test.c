@@ -129,6 +129,12 @@ test3 ()
   sh_vm_run (&vm);
   printf ("\n---------\n");
 
+  // for (size_t i = 0; i < vm.ram.l; i++)
+  //   {
+  //     printf ("%d\t", vm.ram.v[i]);
+  //   }
+  // printf ("\n");
+
   // for (size_t i = 0; i < qp.fls; i++)
   //   {
   //     printf ("%s\n", qp.flines[i]);

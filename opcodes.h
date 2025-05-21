@@ -4,40 +4,42 @@
 
 enum
 {
-  MOV_rv, /* mov to a register, a constant value */
-  MOV_rr, /* mov to a register, a value in a register */
-  ADD_rv, /* add to a register, a constant value. Store result in first
+  MOV_rv = 0, /* mov to a register, a constant value */
+  MOV_rr = 1, /* mov to a register, a value in a register */
+  ADD_rv = 2, /* add to a register, a constant value. Store result in first
              register */
-  ADD_rr, /* add to a register, a value stored in a register. Store result in
-             first register */
-  PUSH_r, /* push the value in a register to stack */
-  PUSH_v, /* push a constant value to a register */
-  POP_r,  /* pop the value of a stack to a register */
-  HLT,    /* end of program */
-  INTERRUPT, /* interrupt */
-  CMP_rv,    /* compare a value in a register with a constant value */
-  CMP_rr, /* compare a value in a register with a value in another register */
-  CMP_byte_r_v, /* compare byte in a memory location stored in a register to a
-                   constant value */
-  CMP_byte_r_r, /* compare a byte in a memory location stored in a register to
-                   a value stored in another register */
-  JE_v,  /* jump to a constant value address if SF.ZF = 1, 2-byte jump */
-  JNE_v, /* jump to a constant value address if SF.ZF != 1, 2-byte jump */
-  SJE_v, /* JE_v but 1-byte jump */
-  SJE_r, /* JE_r but 1-byte jump */
-  JC_v,  /* jump to a constant value address if SF.CF = 1, 2-byte jump */
-  JC_r, /* jump to an address contained in a register if SF.CF = 1, 2-byte jump
+  ADD_rr = 3, /* add to a register, a value stored in a register. Store result
+             in first register */
+  PUSH_r = 4, /* push the value in a register to stack */
+  PUSH_v = 5, /* push a constant value to a register */
+  POP_r = 6,  /* pop the value of a stack to a register */
+  HLT = 7,    /* end of program */
+  INTERRUPT = 8, /* interrupt */
+  CMP_rv = 9,    /* compare a value in a register with a constant value */
+  CMP_rr
+  = 10, /* compare a value in a register with a value in another register */
+  CMP_byte_r_v = 11, /* compare byte in a memory location stored in a register
+                   to a constant value */
+  CMP_byte_r_r = 12, /* compare a byte in a memory location stored in a
+                   register to a value stored in another register */
+  JE_v = 13,  /* jump to a constant value address if SF.ZF = 1, 2-byte jump */
+  JNE_v = 14, /* jump to a constant value address if SF.ZF != 1, 2-byte jump */
+  SJE_v = 15, /* JE_v but 1-byte jump */
+  SJE_r = 16, /* JE_r but 1-byte jump */
+  JC_v = 17,  /* jump to a constant value address if SF.CF = 1, 2-byte jump */
+  JC_r
+  = 18, /* jump to an address contained in a register if SF.CF = 1, 2-byte jump
          */
-  JMP_v,  /* jump to memory address, 2-byte jump */
-  CALL_v, /* move control to memory address at v, 2-byte jump */
-  RET,    /* return control */
-  SUB_rv, /* subtract from a register, a constant value. Store result in first
-             register */
-  SUB_rr, /* subtract from a register, a value in another register. Store
+  JMP_v = 19,  /* jump to memory address, 2-byte jump */
+  CALL_v = 20, /* move control to memory address at v, 2-byte jump */
+  RET = 21,    /* return control */
+  SUB_rv = 22, /* subtract from a register, a constant value. Store result in
+             first register */
+  SUB_rr = 23, /* subtract from a register, a value in another register. Store
              result in first register */
-  INC_r,  /* incremenet value in a register by 1 */
-  DEC_r,  /* decrement value in a register by 1 */
-  NOI     /* number of instructions */
+  INC_r = 24,  /* incremenet value in a register by 1 */
+  DEC_r = 25,  /* decrement value in a register by 1 */
+  NOI          /* number of instructions */
 };
 
 #define MOV (MOV_rv)

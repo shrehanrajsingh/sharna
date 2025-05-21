@@ -82,7 +82,6 @@ sh_cmp_byte_r_v (struct _sharna_vm_s *vm, char r1, char v)
   uint8_t v1 = v;
 
   rv1 = vm->ram.v[rv1];
-  // printf ("rv1: %d\nv1: %d\n", rv1, v1);
 
   uint8_t is_zero = (r == 0);
   uint8_t is_negative = ((r >> 7) & 1);

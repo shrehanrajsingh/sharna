@@ -17,7 +17,7 @@ sh_ret (struct _sharna_vm_s *vm)
        b2: msb
       */
 
-      addr = ((((uint16_t)b2) << 8) | (uint16_t)b1);
+      addr = ((((uint16_t)((uint8_t)b2)) << 8) | (uint16_t)((uint8_t)b1));
     }
   else
     {
@@ -28,7 +28,7 @@ sh_ret (struct _sharna_vm_s *vm)
        b2: lsb
       */
 
-      addr = ((((uint16_t)b1) << 8) | (uint16_t)b2);
+      addr = ((((uint16_t)((uint8_t)b1)) << 8) | (uint16_t)((uint8_t)b2));
     }
 
   vm->cpu.reg_16[R_PC] = addr; /* this will be the address of call instruction,

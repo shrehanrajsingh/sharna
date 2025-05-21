@@ -8,6 +8,15 @@
 | D | General purpose register |
 | E | General purpose register |
 | F | General purpose register |
+| SF | Status flag register |
+| R0 | General purpose register |
+| R1 | General purpose register | 
+| R2 | General purpose register | 
+| R3 | General purpose register | 
+| R4 | General purpose register | 
+| R5 | General purpose register | 
+| R6 | General purpose register | 
+| R7 | General purpose register | 
 
 ## 🔧 Instructions
 | Instruction | Description |
