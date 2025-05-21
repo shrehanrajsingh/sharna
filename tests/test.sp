@@ -15,7 +15,7 @@ section .text
     push 17
     call writelen
 
-    mov A, msg
+    mov R0, msg
 
 stblk:
     push R0
