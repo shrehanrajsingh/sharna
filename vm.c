@@ -258,6 +258,15 @@ sh_vm_run (vm_t *v)
           }
           break;
 
+        case XOR_rr:
+          {
+            char r1 = v->ram.v[++(*pc)];
+            char r2 = v->ram.v[++(*pc)];
+
+            sh_xor_rr (v, r1, r2);
+          }
+          break;
+
         default:
           {
             eprintf ("sh_vm_run: invalid instruction %d\nExiting VM...\n", c);

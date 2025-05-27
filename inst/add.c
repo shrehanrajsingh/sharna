@@ -93,8 +93,8 @@ sh_add_rr (struct _sharna_vm_s *vm, char r1, char r2)
       vm->cpu.reg_8[R_SF] |= REG_SF_AF;
     }
 
-  unsigned char result = vm->cpu.reg_8[r1];
-  unsigned char parity = 0;
+  uint8_t result = vm->cpu.reg_8[r1];
+  uint8_t parity = 0;
   for (int i = 0; i < 8; i++)
     {
       if ((result >> i) & 1)

@@ -14,3 +14,4 @@
 #include "push.h"
 #include "ret.h"
 #include "sub.h"
+#include "xor.h"

@@ -39,6 +39,8 @@ enum
              result in first register */
   INC_r = 24,  /* incremenet value in a register by 1 */
   DEC_r = 25,  /* decrement value in a register by 1 */
+  XOR_rr = 26, /* xor the value in register with a value in another register.
+                  Store the result in the first register */
   NOI          /* number of instructions */
 };
 
@@ -56,9 +58,10 @@ enum
 #define SUB (SUB_rv)
 #define INC (INC_r)
 #define DEC (DEC_r)
+#define XOR (XOR_rr)
 
-static const char *INST_3B[]
-    = { "mov", "add", "cmp", "je", "jc", "jne", "jmp", "call", "sub", NULL };
+static const char *INST_3B[] = { "mov", "add",  "cmp", "je",  "jc", "jne",
+                                 "jmp", "call", "sub", "xor", NULL };
 static const char *INST_2B[]
     = { "push", "pop", "sje", "int", "inc", "dec", NULL };
 static const char *INST_1B[] = { "hlt", "ret", NULL };

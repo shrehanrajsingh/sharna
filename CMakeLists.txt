@@ -30,6 +30,7 @@ add_library(sharna
     inst/sub.h inst/sub.c
     inst/inc.h inst/inc.c
     inst/dec.h inst/dec.c
+    inst/xor.h inst/xor.c
     inst/inst.h
 
     assembler/strutils.h assembler/strutils.c

@@ -4,6 +4,7 @@ void _sh_qp_preprocess (sh_qp_t *);
 int _sh_qp_getprogsec (sh_qp_t *, char *);
 
 char incl_lab_count = '0';
+uint32_t sp_label_identifier = 0;
 
 static int
 is_register (char *k)
@@ -535,6 +536,53 @@ sh_qp_parse (sh_qp_t *qp)
             }
 
           DBG (printf ("found mov instruction '%s', '%s'\n", arg1, arg2));
+        }
+      else if (_str_startswith_ncs (line, "xor"))
+        {
+          char *arg1, *arg2;
+
+          line += 3;
+          while (*line == ' ' || *line == '\t')
+            line++;
+
+          int gb = 0;
+          size_t j = 0;
+
+          for (j = 0; line[j] != '\0'; j++)
+            {
+              if (line[j] == ',' && !gb)
+                break;
+
+              if (_str_contains ("([", line[j]))
+                gb++;
+
+              if (_str_contains (")]", line[j]))
+                gb--;
+            }
+
+          arg1 = line;
+          line[j++] = '\0';
+          arg2 = line + j;
+
+          _STR_TRIM (arg2);
+          _STR_TRIM (arg1);
+
+          int a1ir = is_register (arg1);
+          int a2ir = is_register (arg2);
+
+          if (a1ir != -1 && a2ir != -1) /* standard xor */
+            {
+              qp->cg[sec_text_bc + qp->cgc++] = XOR_rr;
+              qp->cg[sec_text_bc + qp->cgc++] = a1ir;
+              qp->cg[sec_text_bc + qp->cgc++] = a2ir;
+            }
+          else
+            {
+              eprintf ("XOR: Usage xor <register>, <register>\n");
+              exit (EXIT_FAILURE);
+            }
+
+          DBG (printf ("found xor instruction '%s', '%s'\n", arg1, arg2));
         }
 
       else if (_str_startswith_ncs (line, "add"))
@@ -1266,8 +1314,26 @@ _sh_qp_preprocess (sh_qp_t *qp)
 
   if (estc_s > 0)
     {
-      char *lab = shstrdup ("lab1:");
+      char *lab = shstrdup ("00000000000000000000000000000000lab1:");
       lab[strlen (lab) - 2] = incl_lab_count++;
+      sp_label_identifier++;
+
+      char *lp = lab + 31;
+      uint32_t spi = sp_label_identifier;
+
+      while (spi != 0)
+        {
+          if (*lp == '9')
+            {
+              assert (lp != lab && "Maximum include limit reached.");
+              *lp = '0';
+              lp--;
+            }
+
+          *lp = *lp + 1;
+          spi--;
+        }
+
       char *jmplb = shmalloc ((strlen (lab) + 8) * sizeof (char));
       sprintf (jmplb, "jmp %s", lab);
       jmplb[strlen (jmplb) - 1] = '\0';
@@ -1461,7 +1527,7 @@ _sh_qp_preprocess (sh_qp_t *qp)
 
   for (size_t i = 0; i < qp->fls; i++)
     {
-      printf ("(%d) %s\n", i, qp->flines[i]);
+      printf ("(%d) %s\n", (int)i, qp->flines[i]);
     }
 }
 
